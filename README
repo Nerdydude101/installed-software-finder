@@ -1,0 +1,17 @@
+This script is designed to read package manager and system log files to determine
+what software has been installed on the device by the user.  It does not print every
+package name and dependency installed when attempting to install a software and
+instead just lists the major package requested from the user.
+
+=============================
+	    NOTES
+=============================
+APT:
+  Where apt is the defaul package manager, the script reads the apt logs under
+  /var/logs/apt and sorts by user software requests that did not fail.
+
+DNF:
+  Where dnf is the default package manager, the script reads jourlanctl logs
+  for software requests.  Dnf's logs were not accurate enough to do this properly.
+  This seems to cause the issue that the script will only find software
+  that has been installed before the last restart.

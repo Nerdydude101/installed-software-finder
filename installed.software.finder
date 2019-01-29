@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# This script is used to determine what software has been installed by the
+# user, without listing every package and dependency, and instead listing
+# the major installation name.
+
+GREEN="\033[1;32m"
+NOCOLOR="\e[0m"
+
+# Determine Package Manager
+if [ -d /var/log/apt/ ]
+then
+
+  zcat /var/log/apt/history.log.*.gz >> totalInstall.txt 2>/dev/null
+  cat /var/log/apt/history.log >> totalInstall.txt 2>/dev/null
+
+  cat totalInstall.txt | grep -Po '^Commandline: apt-get install \K.*' | tr ' ' '\n' | grep -v '\-\-reinstall' |grep -v '\-\-force-yes' | grep -v '\-y' | grep -v '\-f' | sort | uniq >> installed.txt
+  cat totalInstall.txt | grep -Po '^Commandline: apt install \K.*' | tr ' ' '\n' | grep -v '\-\-reinstall' |grep -v '\-\-force-yes' | grep -v '\-y' | grep -v '\-f' | sort | uniq >> installed.txt
+
+elif [ -f /var/log/dnf.log ]
+then
+
+  journalctl | grep -Po 'COMMAND=/bin/dnf install \K.*' | grep -v 'http://' | grep -v 'https://' | tr ' ' '\n' > installed.txt
+
+fi
+
+rm totalInstall.txt
+echo -e "${GREEN}"
+sort installed.txt | uniq
+echo -e "${NOCOLOR}"
+rm installed.txt
